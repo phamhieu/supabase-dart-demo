@@ -4,10 +4,13 @@ import 'package:demoapp/utils/supabase.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:supabase/supabase.dart';
 import 'package:uni_links/uni_links.dart';
 
 mixin SupabaseDeepLinkingMixin<T extends StatefulWidget> on State<T> {
   late StreamSubscription? _sub;
+
+  var deeplinkReceived = false;
 
   @override
   void initState() {
@@ -31,6 +34,7 @@ mixin SupabaseDeepLinkingMixin<T extends StatefulWidget> on State<T> {
       // the foreground or in the background.
       _sub = uriLinkStream.listen((Uri? uri) {
         if (mounted && uri != null) {
+          deeplinkReceived = true;
           print('got uri: $uri');
           onHandleDeepLink(uri);
           _handleDeepLink(uri);
@@ -38,6 +42,7 @@ mixin SupabaseDeepLinkingMixin<T extends StatefulWidget> on State<T> {
       }, onError: (Object err) {
         if (!mounted) return;
         print('got err: $err');
+        onErrorDeepLink('');
       });
     }
   }
@@ -68,6 +73,7 @@ mixin SupabaseDeepLinkingMixin<T extends StatefulWidget> on State<T> {
     } on FormatException catch (err) {
       if (!mounted) return;
       print('malformed initial uri: $err');
+      onErrorDeepLink(err.message);
     }
   }
 
@@ -75,13 +81,20 @@ mixin SupabaseDeepLinkingMixin<T extends StatefulWidget> on State<T> {
     print('uri.scheme: ${uri.scheme}');
     print('uri.host: ${uri.host}');
 
-    await Supabase.client.auth.getSessionFromUrl(uri);
-    onHandledDeepLink();
+    final response = await Supabase.client.auth.getSessionFromUrl(uri);
+    if (response.error != null) {
+      onErrorDeepLink(response.error!.message);
+    } else {
+      onHandledDeepLink(response.data!);
+    }
   }
 
-  // As a notify that deep link received and is processing
+  /// As a notify that deep link received and is processing
   void onHandleDeepLink(Uri uri) {}
 
-  // As a callback after deep link handled
-  void onHandledDeepLink() {}
+  /// As a callback after deep link handled
+  void onHandledDeepLink(Session session) {}
+
+  /// As a callback when authenticating with deeplink failed
+  void onErrorDeepLink(String message) {}
 }

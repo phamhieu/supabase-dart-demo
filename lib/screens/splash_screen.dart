@@ -6,19 +6,18 @@ import 'package:flutter/material.dart';
 
 class SplashScreen extends StatefulWidget {
   @override
-  SplashScreenState createState() => new SplashScreenState();
+  SplashScreenState createState() => SplashScreenState();
 }
 
-class SplashScreenState extends AuthState<SplashScreen>
-    with SingleTickerProviderStateMixin {
+class SplashScreenState extends AuthState<SplashScreen> {
   @override
   void initState() {
     super.initState();
 
     /// a timer to slow down session restore
     /// If not user can't really see the splash screen
-    var _duration = new Duration(seconds: 1);
-    new Timer(_duration, () {
+    var _duration = Duration(seconds: 1);
+    Timer(_duration, () {
       this.recoverSupabaseSession();
     });
   }

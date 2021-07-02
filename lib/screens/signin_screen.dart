@@ -5,6 +5,8 @@ import 'package:demoapp/screens/profile_screen.dart';
 import 'package:demoapp/components/alert_modal.dart';
 import 'package:demoapp/utils/constants.dart';
 import 'package:rounded_loading_button/rounded_loading_button.dart';
+import 'package:supabase/supabase.dart' hide Column;
+import 'package:url_launcher/url_launcher.dart';
 
 class SignInScreen extends StatefulWidget {
   SignInScreen({Key? key}) : super(key: key);
@@ -15,7 +17,9 @@ class SignInScreen extends StatefulWidget {
 
 class _SignInState extends AuthState<SignInScreen> {
   final RoundedLoadingButtonController _signInEmailController =
-      new RoundedLoadingButtonController();
+      RoundedLoadingButtonController();
+  final RoundedLoadingButtonController _googleSignInController =
+      RoundedLoadingButtonController();
   var email = '';
   var password = '';
 
@@ -37,6 +41,22 @@ class _SignInState extends AuthState<SignInScreen> {
         ),
       );
     }
+  }
+
+  void _googleSigninPressed(BuildContext context) async {
+    signingInWithOAuthProvider = true;
+    final res = await Supabase.client.auth.signIn(
+      provider: Provider.google,
+      options:
+          AuthOptions(redirectTo: 'io.supabase.flutterdemo://login-callback'),
+    );
+    await launch(res.url!);
+  }
+
+  @override
+  void onErrorAuthenticating(String message) {
+    super.onErrorAuthenticating(message);
+    _googleSignInController.reset();
   }
 
   @override
@@ -97,6 +117,18 @@ class _SignInState extends AuthState<SignInScreen> {
               child: const Text("Don’t have an Account ? Sign up"),
               onPressed: () {
                 Navigator.of(context).pushReplacementNamed(SIGNUP_SCREEN);
+              },
+            ),
+            SizedBox(height: 15.0),
+            RoundedLoadingButton(
+              color: Colors.green,
+              child: const Text(
+                'Google Login',
+                style: TextStyle(fontSize: 20, color: Colors.white),
+              ),
+              controller: _googleSignInController,
+              onPressed: () {
+                _googleSigninPressed(context);
               },
             ),
           ],

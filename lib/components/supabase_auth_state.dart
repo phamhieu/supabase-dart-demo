@@ -14,7 +14,14 @@ abstract class SupabaseAuthState<T extends StatefulWidget>
   }
 
   @override
-  void onHandledDeepLink() {}
+  void onHandledDeepLink(Session session) {
+    onAuthenticated(session);
+  }
+
+  @override
+  void onErrorDeepLink(String message) {
+    onErrorAuthenticating(message);
+  }
 
   void _onAuthStateChange(AuthChangeEvent event, Session? session) {
     if (event == AuthChangeEvent.passwordRecovery && session != null) {
@@ -56,5 +63,6 @@ abstract class SupabaseAuthState<T extends StatefulWidget>
 
   void onUnauthenticated();
   void onAuthenticated(Session session);
+  void onErrorAuthenticating(String message);
   void onPasswordRecovery(Session session);
 }
