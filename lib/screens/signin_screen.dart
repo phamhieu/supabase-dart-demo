@@ -16,8 +16,10 @@ class SignInScreen extends StatefulWidget {
 
 class _SignInState extends AuthState<SignInScreen> {
   final RoundedLoadingButtonController _signInEmailController =
-      new RoundedLoadingButtonController();
+      RoundedLoadingButtonController();
   final RoundedLoadingButtonController _githubSignInController =
+      RoundedLoadingButtonController();
+  final RoundedLoadingButtonController _googleSignInController =
       RoundedLoadingButtonController();
   var email = '';
   var password = '';
@@ -51,6 +53,15 @@ class _SignInState extends AuthState<SignInScreen> {
   void _githubSigninPressed(BuildContext context) async {
     await Supabase().client.auth.signInWithProvider(
           supabase.Provider.github,
+          options: supabase.AuthOptions(
+            redirectTo: AUTH_REDIRECT_URI,
+          ),
+        );
+  }
+
+  void _googleSigninPressed(BuildContext context) async {
+    await Supabase().client.auth.signInWithProvider(
+          supabase.Provider.google,
           options: supabase.AuthOptions(
             redirectTo: AUTH_REDIRECT_URI,
           ),
@@ -113,6 +124,18 @@ class _SignInState extends AuthState<SignInScreen> {
               controller: _githubSignInController,
               onPressed: () {
                 _githubSigninPressed(context);
+              },
+            ),
+            SizedBox(height: 15.0),
+            RoundedLoadingButton(
+              color: Colors.green,
+              child: const Text(
+                'Google Login',
+                style: TextStyle(fontSize: 20, color: Colors.white),
+              ),
+              controller: _googleSignInController,
+              onPressed: () {
+                _googleSigninPressed(context);
               },
             ),
             SizedBox(height: 15.0),
