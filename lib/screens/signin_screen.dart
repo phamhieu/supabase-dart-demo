@@ -28,6 +28,7 @@ class _SignInState extends AuthState<SignInScreen> {
   void onErrorAuthenticating(String message) {
     alertModal.show(context, title: 'Sign in failed', message: message);
     _githubSignInController.reset();
+    _googleSignInController.reset();
   }
 
   void _onSignInPress(BuildContext context) async {
