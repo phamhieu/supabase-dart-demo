@@ -1,3 +1,5 @@
+Check out the latest Supabase flutter demo at https://github.com/phamhieu/supabase-flutter-demo
+
 # Supabase Demo App
 
 A Flutter project to demo supabase dart client.
